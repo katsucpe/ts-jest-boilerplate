@@ -1,0 +1,7 @@
+{
+    "editor.formatOnSave": true,
+    "prettier.packageManager": "yarn",
+    "prettier.printWidth": 120,
+    "prettier.semi": false,
+    "editor.tabSize": 2,
+}
