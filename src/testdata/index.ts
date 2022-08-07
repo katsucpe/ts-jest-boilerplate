@@ -1,36 +1,37 @@
-import config from "@@/config"
-import * as path from "path"
-import * as fs from "fs"
-import { User, Role } from "@@/services/user-service"
+import config from "@@/config";
+import * as path from "path";
+import * as fs from "fs";
+import { User, Role } from "@@/services/user-service";
 
 export interface UserTestData {
-  existingUser: User.Info
+  existingUser: User.Info;
 }
 
 export interface RoleTestData {
-  existingRole: Role.Info
+  existingRole: Role.Info;
 }
 
 function readTestData(fileName: string): any {
-  let companyApiDataPath = `${path.resolve(__dirname)}/${config.env}/${fileName}.json`
-  return JSON.parse(fs.readFileSync(companyApiDataPath, "utf8"))
+  let dataPath = `${path.resolve(__dirname)}/${config.env}/${fileName}`;
+  return JSON.parse(fs.readFileSync(dataPath, "utf8"));
 }
 
 export class TestData {
-  [k: string]: any
-  roleTestData!: RoleTestData
-  userTestData!: UserTestData
+  [k: string]: any;
+  roleTestData!: RoleTestData;
+  userTestData!: UserTestData;
 
   public static getGetters(): string[] {
-    return Reflect.ownKeys(this.prototype) as string[]
+    return Reflect.ownKeys(this.prototype) as string[];
   }
 
   constructor() {
-    const keys = ["roleTestData", "userTestData"]
+    let files = fs.readdirSync(`${path.resolve(__dirname)}/${config.env}`);
 
-    for (const key of keys) {
-      console.debug("LOAD TEST DATA ===> ", key)
-      this[key] = readTestData(key)
+    for (const filename of files) {
+      console.debug("LOAD TEST DATA ===> ", filename);
+      let filenameNoExt = filename.split(".").slice(0, -1).join(".");
+      this[filenameNoExt] = readTestData(filename);
     }
   }
 }

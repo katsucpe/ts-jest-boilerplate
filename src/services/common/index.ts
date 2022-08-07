@@ -1,41 +1,52 @@
-import axios, { AxiosInstance } from "axios"
-import axiosLoggerConfig from "@@/axios-logger-config"
-const { addMsg } = require("jest-html-reporters/helper")
-require("axios-debug-log")(axiosLoggerConfig)
+import axios, { AxiosInstance } from "axios";
+import axiosLoggerConfig from "@@/axios-logger-config";
+import { RoleApi, UserApi } from "../user-service/client";
+const { addMsg } = require("jest-html-reporters/helper");
+require("axios-debug-log")(axiosLoggerConfig);
 
 export interface CommonResponse<T = any> {
-  returnCode: number
-  returnMsg: string
-  data: T
+  code: number;
+  message: string;
+  data: T;
 }
 
 export class ApiClient {
-  private host: string
-  protected client: AxiosInstance
+  private host: string;
+  protected client: AxiosInstance;
+
+  userApi: UserApi;
+  roleApi: RoleApi;
 
   constructor(host: string) {
-    this.host = host
+    this.host = host;
     this.client = axios.create({
       baseURL: `${this.host}`,
-    })
+    });
     this.client.interceptors.request.use((request) => {
-      let config: any = request
-      config.metadata = { startTime: new Date() }
-      let msg = `REQ [${request.method?.toUpperCase()}] ${request.baseURL}${request.url}\n`
-      msg += JSON.stringify(request.data, null, 2)
-      addMsg(msg)
-      return config
-    })
+      let config: any = request;
+      config.metadata = { startTime: new Date() };
+      let msg = `REQ [${request.method?.toUpperCase()}] ${request.baseURL}${
+        request.url
+      }\n`;
+      msg += JSON.stringify(request.data, null, 2);
+      addMsg(msg);
+      return config;
+    });
     this.client.interceptors.response.use((response) => {
-      let res: any = response
-      let endTime: any = new Date()
-      let duration = endTime - res.config.metadata.startTime
-      let msg = `RES (${response.status} ${response.statusText}) - [${response.config.method?.toUpperCase()}] ${
+      let res: any = response;
+      let endTime: any = new Date();
+      let duration = endTime - res.config.metadata.startTime;
+      let msg = `RES (${response.status} ${
+        response.statusText
+      }) - [${response.config.method?.toUpperCase()}] ${
         response.config.baseURL
-      }${response.config.url} - ${duration} ms\n`
-      msg += JSON.stringify(response.data, null, 2)
-      addMsg(msg)
-      return response
-    })
+      }${response.config.url} - ${duration} ms\n`;
+      msg += JSON.stringify(response.data, null, 2);
+      addMsg(msg);
+      return response;
+    });
+
+    this.roleApi = new RoleApi(this.client);
+    this.userApi = new UserApi(this.client);
   }
 }
