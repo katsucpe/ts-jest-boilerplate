@@ -28,8 +28,12 @@ just follow dotenv https://www.npmjs.com/package/dotenv
 
 default env is dev
 
+```sh
 $ yarn test
+```
 
 specific env to load data and config
 
+```sh
 $ ENV=beta yarn test
+```
